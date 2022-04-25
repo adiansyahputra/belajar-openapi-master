@@ -1117,3 +1117,262 @@ OpenAPI mendukung example data
 Example data merupakan data contoh yang bisa kita tambahkan baik itu di Parameter, Request Body dan Response Body
 
 Kode : Example di Parameter
+"parameters": [
+          {
+            "name": "include_done",
+            "in": "query",
+            "required": false,
+            "description": "Is include done todolist",
+            "schema": {
+              "type": "boolean",
+              "nullable": true,
+              "default": false
+            }
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "required": false,
+            "description": "Filter todolist by name",
+            "schema": {
+              "type": "string",
+              "nullable": true,
+              "minLength": 1,
+              "maxLength": 100
+            },
+            "examples": {
+              "java": {
+                "description": "Example name Java",
+                "value": "Java"
+              },
+              "php": {
+                "description": "Example name PHP",
+                "value": "PHP"
+              }
+            }
+          }
+        ],
+
+
+
+Kode : Example di Request Body
+                  "java": {
+                    "description": "Success create java todolist",
+                    "value": {
+                      "id": "1",
+                      "name": "Java",
+                      "priority": 3,
+                      "tags": [
+                        "Java",
+                        "Programming"
+                      ]
+                    }
+                  },
+                  "php": {
+                    "description": "Success create php todolist",
+                    "value": {
+                      "id": "2",
+                      "name": "PHP",
+                      "priority": 5,
+                      "tags": [
+                        "PHP",
+                        "Programming"
+                      ]
+                    }
+                  }
+                }
+
+Response Body
+Selain Request Body, kita juga mendokumentasikan Response Body di OpenAPI
+Dengan demikian, kita bisa memberi tahu format Response Body yang kita kembalikan pada RESTful API yang kita buat
+Yang menarik di OpenAPI, kita bisa memberi tahu format response body sesuai dengan response status nya, misal kita bisa tentukan untuk response status 200, 400, 500, dan lain-lain
+
+Response Body Object
+
+Response Object
+
+Kode : Response Body
+
+        "responses": {
+          "200": {
+            "description": "Success get all todolist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArrayTodolist"
+                },
+                "examples": {
+                  "success": {
+                    "description": "Example success get all todolist",
+                    "value": [
+                      {
+                        "id": "1",
+                        "name": "Java",
+                        "priority": 3,
+                        "tags": [
+                          "Java",
+                          "Programming"
+                        ]
+                      },
+                      {
+                        "id": "2",
+                        "name": "PHP",
+                        "priority": 5,
+                        "tags": [
+                          "PHP",
+                          "Programming"
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+
+Tag
+Tag merupakan fitur tambahan, dimana kita bisa grouping beberapa Path menjadi satu Tag yang sama
+Misal ketika kita membuat OpenAPI untuk RESTful API Toko Online, kita grouping dengan Tag Product, Customer, Payment, Order, dan lain-lain
+
+Kode : Tag
+"paths": {
+    "/todolist": {
+      "get": {
+        "security": [
+          {
+            "TodolistAuth": []
+          }
+        ],
+        "tags": [
+          "Todolist"
+        ],
+        "summary": "Get all todolist",
+        "description": "Get all active todolist by default",
+        "parameters": [
+          {
+            "name": "include_done",
+            "in": "query",
+            "required": false,
+            "description": "Is include done todolist",
+            "schema": {
+              "type": "boolean",
+              "nullable": true,
+              "default": false
+            }
+          },
+
+Component
+Component merupakan bagian dalam OpenAPI untuk menyimpan object yang bisa digunakan ulang
+Misal, saat nanti kita membuat spek untuk Request Body atau Response Body, dibanding kita buat satu persatu, jika ada beberapa yang sama, lebih baik kita buat dalam Component, sehingga bisa digunakan di beberapa Endpoint API
+Ada banyak jenis component, ada schema, request, response, parameter, header, dan lain-lain
+
+Component Object (1)
+
+Component Object (2)
+
+Kode : Component
+
+  "components": {
+    "securitySchemes": {
+      "TodolistAuth": {
+        "description": "Authentication for Todolist RESTful API",
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-Key"
+      }
+    },
+    "parameters": {
+      "TodolistId": {
+        "name": "todolistId",
+        "in": "path",
+        "required": true,
+        "description": "Todolist id for updated",
+        "schema": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "examples": {
+          "java": {
+            "description": "Sample todolist id for Java",
+            "value": "1"
+          },
+          "php": {
+            "description": "Sample todolist id for PHP",
+            "value": "2"
+          }
+        }
+      }
+    },
+
+Reference 
+OpenAPI memiliki fitur reference, dimana dengan reference kita bisa membuat reference ke data component yang sudah kita buat
+Hal ini lebih baik, daripada kita buat component yang sama berkali kali pada beberapa path, misal jika terdapat response body yang sama, lebih baik kita gunakan reference, jika memiliki parameter yang sama, lebih baik kita gunakan reference
+
+Kode : Reference pada Parameter
+summary": "Delete existing todolist",
+        "description": "Delete existing todolist in database",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/TodolistId"
+          }
+        ],
+
+Kode : Reference pada Response Body
+"responses": {
+          "200": {
+            "description": "Success get all todolist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArrayTodolist"
+                },
+
+Security
+OpenAPI mendukung dokumentasi untuk Security RESTful API
+Dengan ini kita bisa memberitahu pengguna mekanisme Security apa yang kita gunakan di RESTful API kita
+Ada banyak format security yang didukung oleh OpenAPI, seperti apiKey (query param, header, cookie), http (basic auth, bearer token), oauth2 dan openIdConnect
+Sebelum menggunakan fitur Security, kita perlu membuat requirement Security terlebih dahulu di Component, baru kita bisa gunakan di Operation
+
+Security Object (1)
+
+Security Object (1)
+
+Kode : Security
+components": {
+    "securitySchemes": {
+      "TodolistAuth": {
+        "description": "Authentication for Todolist RESTful API",
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-Key"
+      }
+    },
+
+Kode : Security di Operation
+"paths": {
+    "/todolist": {
+      "get": {
+        "security": [
+          {
+            "TodolistAuth": []
+          }
+        ],
+        "tags": [
+          "Todolist"
+        ],
+
+Code Generator
+OpenAPI adalah spesifikasi yang standard, dan banyak diadopsi oleh banyak perusahaan
+Bahkan kita bisa melakukan code generator sesuai dengan bahasa pemrograman yang kita inginkan
+Contohnya kita bisa menggunakan https://editor.swagger.io/ untuk membuat code client atau server sesuai dengan OpenAPI file yang kita buat
+Hal ini bisa mempermudah ketika kita butuh membuat kode client atau server yang sesuai dengan OpenAPI spec yang sudah dibuat
+
+Swagger Code Generator
+
+Penutup
+Masih banyak fitur yang terdapat di OpenAPI, silahkan pelajari langsung di halaman websitenya
+Mulai sekarang selalu gunakan OpenAPI untuk membuat dokumentasi RESTful API
+Buatlah OpenAPI sebelum kita membuat aplikasi RESTful API
+OpenAPI bisa digunakan sebagai kontrak kesepakatan antara yang akan membuat RESTful API dan yang akan menggunakan RESTful API
